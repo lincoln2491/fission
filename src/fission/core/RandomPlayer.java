@@ -11,18 +11,17 @@ import ai.interfaces.GameIf;
 public class RandomPlayer implements ComputerPlayerIf {
 	GameIf game;
 
-	@Override
-	public AbstractMove getNextMove() {
-		ArrayList<AbstractMove> moves;
-		moves = new ArrayList<AbstractMove>(Arrays.asList(game.getAllMoves()));
-		Random r = new Random();
-		int index = r.nextInt(moves.size());
-		return moves.get(index);
+	public RandomPlayer(GameIf aGame) {
+		game = aGame;
 	}
 
 	@Override
-	public void setGame(GameIf aGame) {
-		game = aGame;
+	public AbstractMove getNextMove(boolean aIsForWhitePlayer) {
+		ArrayList<AbstractMove> moves;
+		moves = game.getAllMoves();
+		Random r = new Random();
+		int index = r.nextInt(moves.size());
+		return moves.get(index);
 	}
 
 }

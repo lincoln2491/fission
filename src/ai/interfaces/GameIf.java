@@ -1,13 +1,23 @@
 package ai.interfaces;
 
+import java.util.ArrayList;
+
 public interface GameIf {
-	public void createNewGame();
+
+	public boolean isWhitePlayerTurn();
 
 	public void doMove(AbstractMove aMove);
 
-	public AbstractState getState();
+	public AbstractState getActualState();
 
-	public AbstractMove[] getAllMoves();
+	public ArrayList<AbstractMove> getAllMoves();
 
-	public AbstractState getsState();
+	public ArrayList<AbstractMove> getAllMovesFromState(AbstractState aState,
+			boolean aIsForWhite);
+
+	public void setState(AbstractState aAbstractState);
+
+	public AbstractState getStateAfterMove(AbstractState aState,
+			AbstractMove aMove);
+
 }

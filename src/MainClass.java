@@ -1,4 +1,5 @@
 import fission.core.FissionGame;
+import fission.gui.GameMaker;
 
 public class MainClass {
 
@@ -7,8 +8,7 @@ public class MainClass {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		FissionGame g = new FissionGame();
-		g.printState();
+		GameMaker gameMaker = new GameMaker();
 	}
 
 }

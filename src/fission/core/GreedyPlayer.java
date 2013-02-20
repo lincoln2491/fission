@@ -12,15 +12,16 @@ public class GreedyPlayer implements ComputerPlayerIf {
 	GameIf game;
 	AbstractEvaluationFunction evaluationFunction;
 
-	public void setEvaluationFunction(
+	public GreedyPlayer(GameIf aGame,
 			AbstractEvaluationFunction aEvaluationFunction) {
+		game = aGame;
 		evaluationFunction = aEvaluationFunction;
 	}
 
 	@Override
-	public AbstractMove getNextMove() {
+	public AbstractMove getNextMove(boolean aIsForWhitePlayer) {
 		ArrayList<AbstractMove> moves;
-		moves = new ArrayList<AbstractMove>(Arrays.asList(game.getAllMoves()));
+		moves = game.getAllMoves();
 		int bestEvaluation = 0;
 		AbstractMove bestMove = null;
 
@@ -28,22 +29,18 @@ public class GreedyPlayer implements ComputerPlayerIf {
 			int evaluation;
 			if (bestMove == null) {
 				bestMove = m;
-				bestEvaluation = evaluationFunction.evaluateMove(
-						game.getsState(), m);
+				bestEvaluation = evaluationFunction.evaluateState(game
+						.getActualState());
 				continue;
 			}
-			evaluation = evaluationFunction.evaluateMove(game.getsState(), m);
+			evaluation = evaluationFunction
+					.evaluateState(game.getActualState());
 			if (evaluation > bestEvaluation) {
 				bestEvaluation = evaluation;
 				bestMove = m;
 			}
 		}
 		return bestMove;
-	}
-
-	@Override
-	public void setGame(GameIf aGame) {
-		game = aGame;
 	}
 
 }
