@@ -20,4 +20,12 @@ public interface GameIf {
 	public AbstractState getStateAfterMove(AbstractState aState,
 			AbstractMove aMove);
 
+	/**
+	 * 
+	 * @return -1 remis
+	 * 0 nikt
+	 * 1 biały gracz
+	 * 2 czarny gracz
+	 */
+	public int whoIsWinner();
 }

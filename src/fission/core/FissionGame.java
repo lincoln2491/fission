@@ -67,7 +67,7 @@ public class FissionGame implements GameIf {
 	public void createNewGame(boolean aIsWhitePlayer) {
 		actualState = new FissionState();
 		FieldColor board[][] = new FieldColor[8][8];
-		actualState.setWhitePlayer(aIsWhitePlayer);
+		actualState.setWhitePlayerTurn(aIsWhitePlayer);
 
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
@@ -99,7 +99,8 @@ public class FissionGame implements GameIf {
 
 	@Override
 	public ArrayList<AbstractMove> getAllMoves() {
-		return getAllMovesFromState(actualState, actualState.isWhitePlayer());
+		return getAllMovesFromState(actualState,
+				actualState.isWhitePlayerTurn());
 	}
 
 	@Override
@@ -117,11 +118,12 @@ public class FissionGame implements GameIf {
 		int xTarget = x;
 		int yTarget = y;
 		boolean isStopedByWall = true;
-		FieldColor board[][] = actualState.getBoard().clone();
+		FieldColor board[][] = ((FissionState) aState).getBoard().clone();
 		FissionState returnState = new FissionState();
 
 		if (board[x][y] == FieldColor.EMPTY) {
 			returnState.setBoard(board);
+			returnState.setWhitePlayerTurn(!actualState.isWhitePlayerTurn());
 			return returnState;
 		}
 
@@ -146,16 +148,37 @@ public class FissionGame implements GameIf {
 		board[xTarget][yTarget] = board[x][y];
 		board[x][y] = FieldColor.EMPTY;
 		if (!isStopedByWall) {// TODO wykroczenia poza tablice
-			board[xTarget - 1][yTarget - 1] = FieldColor.EMPTY;
-			board[xTarget - 1][yTarget + 1] = FieldColor.EMPTY;
-			board[xTarget + 1][yTarget - 1] = FieldColor.EMPTY;
-			board[xTarget + 1][yTarget + 1] = FieldColor.EMPTY;
-			board[xTarget - 1][yTarget] = FieldColor.EMPTY;
-			board[xTarget + 1][yTarget] = FieldColor.EMPTY;
-			board[xTarget][yTarget - 1] = FieldColor.EMPTY;
-			board[xTarget][yTarget + 1] = FieldColor.EMPTY;
+			xTarget += xDirection;
+			yTarget += yDirection;
+			if (xTarget > 0 && yTarget > 0) {
+				board[xTarget - 1][yTarget - 1] = FieldColor.EMPTY;
+			}
+			if (xTarget > 0 && yTarget < 7) {
+				board[xTarget - 1][yTarget + 1] = FieldColor.EMPTY;
+			}
+			if (xTarget < 7 && yTarget > 0) {
+				board[xTarget + 1][yTarget - 1] = FieldColor.EMPTY;
+			}
+			if (xTarget < 7 && yTarget < 7) {
+				board[xTarget + 1][yTarget + 1] = FieldColor.EMPTY;
+			}
+			if (xTarget > 0) {
+				board[xTarget - 1][yTarget] = FieldColor.EMPTY;
+			}
+			if (xTarget < 7) {
+				board[xTarget + 1][yTarget] = FieldColor.EMPTY;
+			}
+			if (yTarget > 0) {
+				board[xTarget][yTarget - 1] = FieldColor.EMPTY;
+			}
+			if (yTarget < 7) {
+				board[xTarget][yTarget + 1] = FieldColor.EMPTY;
+			}
+			board[xTarget][yTarget] = FieldColor.EMPTY;
 		}
+
 		returnState.setBoard(board);
+		returnState.setWhitePlayerTurn(!actualState.isWhitePlayerTurn());
 		return returnState;
 	}
 
@@ -191,7 +214,7 @@ public class FissionGame implements GameIf {
 							&& board[i + 1][j + 1] == FieldColor.EMPTY) {
 						moves.add(new FissionMove(i, j, 1, 1));
 					}
-					if (j > 0 && board[i][j + 1] == FieldColor.EMPTY) {
+					if (j < 7 && board[i][j + 1] == FieldColor.EMPTY) {
 						moves.add(new FissionMove(i, j, 0, 1));
 					}
 					if (i > 0 && j < 7
@@ -206,8 +229,58 @@ public class FissionGame implements GameIf {
 
 	@Override
 	public boolean isWhitePlayerTurn() {
-		// TODO Auto-generated method stub
-		return actualState.isWhitePlayer();
+		return actualState.isWhitePlayerTurn();
+	}
+
+	public void nextComputerPlayerMove() {
+		FissionMove move;
+		if (actualState.isWhitePlayerTurn()) {
+			move = (FissionMove) whitePlayer.getNextMove();
+		} else {
+			move = (FissionMove) blackPlayer.getNextMove();
+		}
+		doMove(move);
+	}
+
+	public void setWhitePlayerTurn(boolean aWhitePlayerTurn) {
+		actualState.setWhitePlayerTurn(aWhitePlayerTurn);
+	}
+
+	@Override
+	public int whoIsWinner() {
+		int numberOfWhite = 0;
+		int numberOfBlack = 0;
+		FieldColor board[][] = actualState.getBoard();
+
+		if (getAllMoves() == null) {
+			return -1;
+		}
+
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				if (board[i][j] == FieldColor.WHITE) {
+					numberOfWhite++;
+				}
+				if (board[i][j] == FieldColor.BLACK) {
+					numberOfBlack++;
+				}
+			}
+		}
+
+		if ((numberOfBlack == 0 && numberOfWhite == 0)
+				|| (numberOfBlack == 1 && numberOfWhite == 1)) {
+			return -1;
+		}
+
+		if (numberOfBlack == 0) {
+			return 1;
+		}
+
+		if (numberOfWhite == 0) {
+			return 2;
+		}
+
+		return 0;
 	}
 
 }

@@ -1,7 +1,6 @@
 package fission.core;
 
 import ai.interfaces.AbstractEvaluationFunction;
-import ai.interfaces.AbstractMove;
 import ai.interfaces.AbstractState;
 
 public class FissionEvaluateFunction extends AbstractEvaluationFunction {
@@ -23,10 +22,11 @@ public class FissionEvaluateFunction extends AbstractEvaluationFunction {
 			}
 		}
 
-		if (aState.isWhitePlayer()) {
-			result = 100 * (numberOfWhite / numberOfBlack);
-		} else {
-			result = 100 * (numberOfBlack / numberOfWhite);
+		result = numberOfWhite - numberOfBlack;
+		if (result == 8) {
+			result = Integer.MAX_VALUE;
+		} else if (result == -1) {
+			result = Integer.MIN_VALUE;
 		}
 		return result;
 	}

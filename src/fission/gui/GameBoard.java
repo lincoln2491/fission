@@ -1,7 +1,5 @@
 package fission.gui;
 
-import java.awt.Color;
-
 import javax.swing.JFrame;
 
 import fission.core.FissionGame;

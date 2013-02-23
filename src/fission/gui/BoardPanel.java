@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.sql.Time;
 
 import javax.swing.JPanel;
 import javax.swing.event.MouseInputListener;
@@ -15,6 +16,7 @@ import sun.invoke.empty.Empty;
 
 import fission.core.FieldColor;
 import fission.core.FissionGame;
+import fission.core.FissionMove;
 import fission.core.FissionState;
 
 public class BoardPanel extends JPanel implements MouseListener {
@@ -23,26 +25,76 @@ public class BoardPanel extends JPanel implements MouseListener {
 	static int ROW_AND_COLUMN_SIZE = 50;
 	static int PAWN_RADIUS = 25;
 	Point clickedPoint = null;
-
+	Thread twoComputerPlayersThread;
+BoardPanel thisPanel;
 	public BoardPanel(FissionGame aGame) {
 		super();
 		game = aGame;
-		this.addMouseListener(this);
+
+		if (game.getWhitePlayer() != null && game.getBlackPlayer() != null) {
+			twoComputerPlayersThread = new Thread(new Runnable() {
+
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException e) {
+					}
+					while(game.whoIsWinner()==0){
+						long start, stop, diff;
+						start = System.currentTimeMillis();
+						game.nextComputerPlayerMove();
+						stop = System.currentTimeMillis();
+						diff = start-stop;
+						if(diff <500){
+							try {
+								Thread.sleep(500-diff);
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+						thisPanel.repaint();
+					}
+				}
+			});
+			twoComputerPlayersThread.start();
+		} else if (game.getWhitePlayer() != null && game.isWhitePlayerTurn()) {
+			game.nextComputerPlayerMove();
+			this.addMouseListener(this);
+		} else if (game.getBlackPlayer() != null && !game.isWhitePlayerTurn()) {
+			game.nextComputerPlayerMove();
+			this.addMouseListener(this);
+		}
+		thisPanel = this;
 	}
 
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		Graphics2D g2d = (Graphics2D) g;
-		char[] playerMoveString;
+		char[] gameStatusCharArray;
+		int winner;
 
 		g2d.setColor(Color.BLACK);
-		if (game.isWhitePlayerTurn()) {
-			playerMoveString = "Ruch białego gracza".toCharArray();
+
+		winner = game.whoIsWinner();
+		if (winner == 0) {
+			if (game.isWhitePlayerTurn()) {
+				gameStatusCharArray = "Ruch białego gracza".toCharArray();
+			} else {
+				gameStatusCharArray = "Ruch czarnego gracza".toCharArray();
+			}
+		} else if (winner == -1) {
+			gameStatusCharArray = "Remis".toCharArray();
+		} else if (winner == 1) {
+			gameStatusCharArray = "Wygrał biały gracz".toCharArray();
 		} else {
-			playerMoveString = "Ruch czarnego gracza".toCharArray();
+			gameStatusCharArray = "Wygrał czarny gracz".toCharArray();
 		}
-		g2d.drawChars(playerMoveString, 0, playerMoveString.length, 5, 15);
+
+		g2d.drawChars(gameStatusCharArray, 0, gameStatusCharArray.length, 5, 15);
 
 		this.setBackground(Color.ORANGE);
 
@@ -185,6 +237,14 @@ public class BoardPanel extends JPanel implements MouseListener {
 
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
+		if ((game.getWhitePlayer() != null && game.getActualState()
+				.isWhitePlayerTurn())
+				|| (game.getBlackPlayer() != null && !game.getActualState()
+						.isWhitePlayerTurn())) {
+			clickedPoint = null;
+			return;
+		}
+
 		Point newClickedPoint = getPointAt(arg0.getPoint());
 		if (newClickedPoint == null) {
 			clickedPoint = null;
@@ -199,26 +259,71 @@ public class BoardPanel extends JPanel implements MouseListener {
 				clickedPoint = newClickedPoint;
 			} else if (board[newClickedPoint.x][newClickedPoint.y] == FieldColor.EMPTY
 					&& clickedPoint != null) {
-				int xDif = clickedPoint.x = newClickedPoint.x;
-				int yDif = clickedPoint.y = newClickedPoint.y;
-				
-				if(xDif == 0 && yDif ==0){
+				int xDif = newClickedPoint.x - clickedPoint.x;
+				int yDif = newClickedPoint.y - clickedPoint.y;
+				if (xDif == 0 && yDif == 0) {
+					// klikniecie w te samo pole
+					clickedPoint = null;
+				} else if (xDif > 0 && xDif == yDif) {
+					// prawo dół
+					xDif = 1;
+					yDif = 1;
+				} else if (xDif < 0 && xDif == yDif) {
+					// lewo góra
+					xDif = -1;
+					yDif = -1;
+				} else if (xDif > 0 && xDif == -yDif) {
+					// prawo góra
+					xDif = 1;
+					yDif = -1;
+				} else if (xDif < 0 && xDif == -yDif) {
+					// lewo dół
+					xDif = -1;
+					yDif = 1;
+				} else if (xDif > 0 && yDif == 0) {
+					// prawo
+					xDif = 1;
+					yDif = 0;
+				} else if (xDif < 0 && yDif == 0) {
+					// lewo
+					xDif = -1;
+					yDif = 0;
+				} else if (yDif > 0 && xDif == 0) {
+					// dół
+					xDif = 0;
+					yDif = 1;
+				} else if (yDif < 0 && xDif == 0) {
+					// góra
+					xDif = 0;
+					yDif = -1;
+				}
+				if (board[clickedPoint.x + xDif][clickedPoint.y + yDif] == FieldColor.EMPTY) {
+					game.doMove(new FissionMove(clickedPoint.x, clickedPoint.y,
+							xDif, yDif));
 					clickedPoint = null;
 				}
-				
-				//TODO zrób to kurwa
-				else if(xDif == 0 && yDif >1){
-					System.out.println("góra");
-				}
-				else if(xDif == 0 && yDif ==-1){
-					System.out.println("góra");
-				}
-				
+
 			} else if (board[newClickedPoint.x][newClickedPoint.y] != FieldColor.EMPTY) {
 				clickedPoint = null;
 			}
 
 		}
+
+		this.repaint();
+
+		if (game.whoIsWinner() != 0) {
+			this.removeMouseListener(this);
+			this.repaint();
+			return;
+		}
+
+		if (game.isWhitePlayerTurn() && game.getWhitePlayer() != null) {
+			game.nextComputerPlayerMove();
+		}
+		if (!game.isWhitePlayerTurn() && game.getBlackPlayer() != null) {
+			game.nextComputerPlayerMove();
+		}
+
 		this.repaint();
 	}
 

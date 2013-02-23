@@ -11,15 +11,18 @@ import ai.interfaces.GameIf;
 public class GreedyPlayer implements ComputerPlayerIf {
 	GameIf game;
 	AbstractEvaluationFunction evaluationFunction;
+	boolean isWhitePlayer;
 
 	public GreedyPlayer(GameIf aGame,
-			AbstractEvaluationFunction aEvaluationFunction) {
+			AbstractEvaluationFunction aEvaluationFunction,
+			boolean aIsWhitePlayer) {
 		game = aGame;
 		evaluationFunction = aEvaluationFunction;
+		isWhitePlayer = aIsWhitePlayer;
 	}
 
 	@Override
-	public AbstractMove getNextMove(boolean aIsForWhitePlayer) {
+	public AbstractMove getNextMove() {
 		ArrayList<AbstractMove> moves;
 		moves = game.getAllMoves();
 		int bestEvaluation = 0;

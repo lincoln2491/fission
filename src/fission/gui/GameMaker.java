@@ -3,6 +3,7 @@ package fission.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
@@ -12,6 +13,8 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.Format;
+import java.text.NumberFormat;
 import java.util.Random;
 
 import javax.swing.BoxLayout;
@@ -20,6 +23,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -30,6 +34,7 @@ import javax.swing.event.ChangeListener;
 import ai.interfaces.ComputerPlayerIf;
 
 import fission.core.AlfaBetaPlayer;
+import fission.core.AlfaBetaPlayerWithTTPlayer;
 import fission.core.FieldColor;
 import fission.core.FissionEvaluateFunction;
 import fission.core.FissionGame;
@@ -41,6 +46,8 @@ public class GameMaker extends JFrame {
 
 	JComboBox<String> whitePlayerComboBox;
 	JComboBox<String> blackPlayerComboBox;
+	JFormattedTextField whitePlayerDeepth;
+	JFormattedTextField blackPlayerDeepth;
 
 	JComboBox<String> startingPlayerComboBox;
 
@@ -217,12 +224,30 @@ public class GameMaker extends JFrame {
 		whitePlayerComboBox = new JComboBox<String>();
 		DefaultComboBoxModel<String> playerModel = new DefaultComboBoxModel<String>(
 				new String[] { "Człowiek", "Gracz losowy", "Gracz zachłanny",
-						"Gracz alfa-beta", "Gracz inny" });
+						"Gracz alfa-beta", "Gracz alfa-beta z TT" });
 		whitePlayerComboBox.setModel(playerModel);
 		chosePlayersPanel.add(new JPanel(), BorderLayout.EAST);
 		((JPanel) chosePlayersPanel.getComponent(1))
 				.setBackground(backgroundColor);
 		((JPanel) chosePlayersPanel.getComponent(1)).add(whitePlayerComboBox);
+
+		chosePlayersPanel = new JPanel();
+		chosePlayersPanel.setBackground(backgroundColor);
+		chosePlayersPanel.setLayout(new BorderLayout());
+		this.add(chosePlayersPanel);
+
+		chosePlayersPanel.add(new JLabel("Wybierz głębokość poszukiwania:"),
+				BorderLayout.WEST);
+
+		whitePlayerDeepth = new JFormattedTextField(NumberFormat.getInstance());
+		whitePlayerDeepth.setText("5");
+		whitePlayerDeepth.setPreferredSize(new Dimension(140, whitePlayerDeepth
+				.getMinimumSize().height));
+		whitePlayerDeepth.setMaximumSize(whitePlayerDeepth.getPreferredSize());
+		chosePlayersPanel.add(new JPanel(), BorderLayout.EAST);
+		((JPanel) chosePlayersPanel.getComponent(1))
+				.setBackground(backgroundColor);
+		((JPanel) chosePlayersPanel.getComponent(1)).add(whitePlayerDeepth);
 
 		chosePlayersPanel = new JPanel();
 		chosePlayersPanel.setBackground(backgroundColor);
@@ -235,7 +260,7 @@ public class GameMaker extends JFrame {
 		blackPlayerComboBox = new JComboBox<String>();
 		playerModel = new DefaultComboBoxModel<String>(new String[] {
 				"Człowiek", "Gracz losowy", "Gracz zachłanny",
-				"Gracz alfa-beta", "Gracz inny" });
+				"Gracz alfa-beta", "Gracz alfa-beta z TT" });
 		blackPlayerComboBox.setModel(playerModel);
 		chosePlayersPanel.add(new JPanel(), BorderLayout.EAST);
 		((JPanel) chosePlayersPanel.getComponent(1))
@@ -243,6 +268,23 @@ public class GameMaker extends JFrame {
 		((JPanel) chosePlayersPanel.getComponent(1)).add(blackPlayerComboBox,
 				BorderLayout.CENTER);
 
+		chosePlayersPanel = new JPanel();
+		chosePlayersPanel.setBackground(backgroundColor);
+		chosePlayersPanel.setLayout(new BorderLayout());
+		this.add(chosePlayersPanel);
+
+		chosePlayersPanel.add(new JLabel("Wybierz głębokość poszukiwania:"),
+				BorderLayout.WEST);
+
+		blackPlayerDeepth = new JFormattedTextField(NumberFormat.getInstance());
+		blackPlayerDeepth.setText("5");
+		blackPlayerDeepth.setPreferredSize(new Dimension(140, whitePlayerDeepth
+				.getMinimumSize().height));
+		blackPlayerDeepth.setMaximumSize(whitePlayerDeepth.getPreferredSize());
+		chosePlayersPanel.add(new JPanel(), BorderLayout.EAST);
+		((JPanel) chosePlayersPanel.getComponent(1))
+				.setBackground(backgroundColor);
+		((JPanel) chosePlayersPanel.getComponent(1)).add(blackPlayerDeepth);
 	}
 
 	private void createRandomState() {
@@ -271,7 +313,7 @@ public class GameMaker extends JFrame {
 		String option;
 		FissionGame game;
 		GameBoard board;
-
+		
 		option = (String) startingPlayerComboBox.getSelectedItem();
 		if (option == "Biały gracz") {
 			isWhitePlayerTurn = true;
@@ -287,7 +329,7 @@ public class GameMaker extends JFrame {
 			}
 			startState = new FissionState();
 			startState.setBoard(loadedBoard);
-			startState.setWhitePlayer(isWhitePlayerTurn);
+			startState.setWhitePlayerTurn(isWhitePlayerTurn);
 			game = new FissionGame(startState);
 		}
 
@@ -297,13 +339,14 @@ public class GameMaker extends JFrame {
 		} else if (option == "Gracz losowy") {
 			whitePlayer = new RandomPlayer(game);
 		} else if (option == "Gracz zachłanny") {
-			whitePlayer = new GreedyPlayer(game, new FissionEvaluateFunction());
+			whitePlayer = new GreedyPlayer(game, new FissionEvaluateFunction(),
+					true);
 		} else if (option == "Gracz alfa-beta") {
 			whitePlayer = new AlfaBetaPlayer(game,
-					new FissionEvaluateFunction(), 5);
-		} else if (option == "Gracz zachłanny") {
-			// whitePlayer = new GreedyPlayer(game, new
-			// FissionEvaluateFunction());
+					new FissionEvaluateFunction(),
+					Integer.parseInt(whitePlayerDeepth.getText()), true);
+		} else if (option == "Gracz alfa-beta z TT") {
+			whitePlayer = new AlfaBetaPlayerWithTTPlayer();
 		}
 
 		option = (String) blackPlayerComboBox.getSelectedItem();
@@ -312,18 +355,18 @@ public class GameMaker extends JFrame {
 		} else if (option == "Gracz losowy") {
 			blackPlayer = new RandomPlayer(game);
 		} else if (option == "Gracz zachłanny") {
-			blackPlayer = new GreedyPlayer(game, new FissionEvaluateFunction());
+			blackPlayer = new GreedyPlayer(game, new FissionEvaluateFunction(),
+					true);
 		} else if (option == "Gracz alfa-beta") {
 			blackPlayer = new AlfaBetaPlayer(game,
-					new FissionEvaluateFunction(), 5);
-		} else if (option == "Gracz zachłanny") {
-			// blackPlayer = new GreedyPlayer(game, new
-			// FissionEvaluateFunction());
+					new FissionEvaluateFunction(), Integer.parseInt(blackPlayerDeepth.getText()), false);
+		}else if (option == "Gracz alfa-beta z TT") {
+			blackPlayer = new AlfaBetaPlayerWithTTPlayer();
 		}
 
 		game.setWhitePlayer(whitePlayer);
 		game.setBlackPlayer(blackPlayer);
-
+		
 		board = new GameBoard(game);
 	}
 
@@ -348,9 +391,11 @@ public class GameMaker extends JFrame {
 				} else if (c == 'w') {
 					loadedBoard[i][j] = FieldColor.WHITE;
 				} else {
+					fileReader.close();
 					throw new IOException();
 				}
 			}
 		}
+		fileReader.close();
 	}
 }

@@ -16,7 +16,7 @@ public class RandomPlayer implements ComputerPlayerIf {
 	}
 
 	@Override
-	public AbstractMove getNextMove(boolean aIsForWhitePlayer) {
+	public AbstractMove getNextMove() {
 		ArrayList<AbstractMove> moves;
 		moves = game.getAllMoves();
 		Random r = new Random();

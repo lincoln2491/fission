@@ -1,14 +1,14 @@
 package ai.interfaces;
 
 public abstract class AbstractState {
-	boolean isWhitePlayer;
+	boolean isWhitePlayerTurn;
 
-	public boolean isWhitePlayer() {
-		return isWhitePlayer;
+	public boolean isWhitePlayerTurn() {
+		return isWhitePlayerTurn;
 	}
 
-	public void setWhitePlayer(boolean isWhitePlayer) {
-		this.isWhitePlayer = isWhitePlayer;
+	public void setWhitePlayerTurn(boolean isWhitePlayerTurn) {
+		this.isWhitePlayerTurn = isWhitePlayerTurn;
 	}
 
 }
