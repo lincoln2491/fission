@@ -1,6 +1,7 @@
 package fission.core;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import ai.interfaces.AbstractEvaluationFunction;
 import ai.interfaces.AbstractMove;
@@ -13,14 +14,20 @@ public class AlfaBetaPlayer implements ComputerPlayerIf {
 	AbstractEvaluationFunction evaluationFunction;
 	int depthOfSearching;
 	boolean isWhitePlayer;
+	boolean withTT;
+	private HashMap<String, Integer> TT;
 
 	public AlfaBetaPlayer(GameIf aGame,
 			AbstractEvaluationFunction aEvaluationFunction,
-			int aDepthOfSearching, boolean aIsWhitePlayer) {
+			int aDepthOfSearching, boolean aIsWhitePlayer, boolean aWithTT) {
 		game = aGame;
 		evaluationFunction = aEvaluationFunction;
 		depthOfSearching = aDepthOfSearching;
 		isWhitePlayer = aIsWhitePlayer;
+		withTT = aWithTT;
+		if (withTT) {
+			TT = new HashMap<String, Integer>();
+		}
 	}
 
 	@Override
@@ -37,8 +44,7 @@ public class AlfaBetaPlayer implements ComputerPlayerIf {
 			AbstractState state = game.getStateAfterMove(game.getActualState(),
 					m);
 			int currentValue = deeperAndDeeper(depthOfSearching - 1, state,
-					Integer.MIN_VALUE, Integer.MAX_VALUE,
-					!game.isWhitePlayerTurn());
+					Integer.MIN_VALUE, Integer.MAX_VALUE, isWhitePlayer);
 			if (currentValue >= valueOfBestMove && isWhitePlayer) {
 				valueOfBestMove = currentValue;
 				bestMove = m;
@@ -51,16 +57,38 @@ public class AlfaBetaPlayer implements ComputerPlayerIf {
 		return bestMove;
 	}
 
-	private int deeperAndDeeper(int aDepth, AbstractState aState, int aAlfa,
-			int aBeta, boolean aIsWhitePlayer) {
-		AbstractMove bestMove;
-		ArrayList<AbstractMove> allMoves;
-		if (aDepth == 0 ) {
-			return evaluationFunction.evaluateState(aState);
+	private void saveToTT(AbstractState aState, int aValue, int aDepth,
+			int aAlpha, int aBeta) {
+		String key;
+		Integer value;
+		value = aValue;
+		key = aState.toString() + "-" + Integer.toString(aDepth) + "-";
+		if (value <= aAlpha) {
+			key += "u";
+		} else if (value >= aBeta) {
+			key += "l";
+		} else {
+			key += "a";
 		}
 
+		TT.put(key, value);
+	}
+	
+
+	private int deeperAndDeeper(int aDepth, AbstractState aState, int aAlfa,
+			int aBeta, boolean aIsWhitePlayer) {
+		ArrayList<AbstractMove> allMoves;
+		if (aDepth == 0) {
+			return evaluationFunction.evaluateState(aState);
+		}
+		
+		if(withTT){
+			
+		}
+		
 		if (aIsWhitePlayer) {
 			allMoves = game.getAllMovesFromState(aState, true);
+			
 			
 			if (allMoves.size() == 0) {
 				return evaluationFunction.evaluateState(aState);
@@ -77,7 +105,7 @@ public class AlfaBetaPlayer implements ComputerPlayerIf {
 			}
 			return aAlfa;
 		} else {
-			allMoves = game.getAllMovesFromState(aState, true);
+			allMoves = game.getAllMovesFromState(aState, false);
 			if (allMoves.size() == 0) {
 				return evaluationFunction.evaluateState(aState);
 			}
@@ -93,5 +121,13 @@ public class AlfaBetaPlayer implements ComputerPlayerIf {
 			}
 			return aBeta;
 		}
+	}
+	
+	private class TTMove{
+		int x, y, xDirection, yDirection;
+		int value;
+		char bound;
+		int depth;
+		
 	}
 }

@@ -251,7 +251,7 @@ public class FissionGame implements GameIf {
 		}
 		
 		long seed = System.nanoTime();
-		Collections.shuffle(moves, new Random(seed));
+		//Collections.shuffle(moves, new Random(seed));
 		return moves;
 	}
 

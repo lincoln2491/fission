@@ -20,7 +20,6 @@ public class FissionState extends AbstractState {
 					result += "b";
 				}
 			}
-			result += "\n";
 		}
 		return result;
 	}

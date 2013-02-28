@@ -339,14 +339,14 @@ public class GameMaker extends JFrame {
 		} else if (option == "Gracz losowy") {
 			whitePlayer = new RandomPlayer(game);
 		} else if (option == "Gracz zachłanny") {
-			whitePlayer = new GreedyPlayer(game, new FissionEvaluateFunction(game),
-					true);
+			whitePlayer = new GreedyPlayer(game, new FissionEvaluateFunction(
+					game), true);
 		} else if (option == "Gracz alfa-beta") {
-			whitePlayer = new AlfaBetaPlayer(game,
-					new FissionEvaluateFunction(game),
-					Integer.parseInt(whitePlayerDeepth.getText()), true);
+			whitePlayer = new AlfaBetaPlayer(game, new FissionEvaluateFunction(
+					game), Integer.parseInt(whitePlayerDeepth.getText()), true, false);
 		} else if (option == "Gracz alfa-beta z TT") {
-			whitePlayer = new AlfaBetaPlayerWithTTPlayer();
+			whitePlayer = new AlfaBetaPlayer(game, new FissionEvaluateFunction(
+					game), Integer.parseInt(whitePlayerDeepth.getText()), true, true);
 		}
 
 		option = (String) blackPlayerComboBox.getSelectedItem();
@@ -355,14 +355,14 @@ public class GameMaker extends JFrame {
 		} else if (option == "Gracz losowy") {
 			blackPlayer = new RandomPlayer(game);
 		} else if (option == "Gracz zachłanny") {
-			blackPlayer = new GreedyPlayer(game, new FissionEvaluateFunction(game),
-					true);
+			blackPlayer = new GreedyPlayer(game, new FissionEvaluateFunction(
+					game), false);
 		} else if (option == "Gracz alfa-beta") {
-			blackPlayer = new AlfaBetaPlayer(game,
-					new FissionEvaluateFunction(game),
-					Integer.parseInt(blackPlayerDeepth.getText()), false);
+			blackPlayer = new AlfaBetaPlayer(game, new FissionEvaluateFunction(
+					game), Integer.parseInt(blackPlayerDeepth.getText()), false, false);
 		} else if (option == "Gracz alfa-beta z TT") {
-			blackPlayer = new AlfaBetaPlayerWithTTPlayer();
+			blackPlayer = new AlfaBetaPlayer(game, new FissionEvaluateFunction(
+					game), Integer.parseInt(blackPlayerDeepth.getText()), false, true);
 		}
 
 		game.setWhitePlayer(whitePlayer);
