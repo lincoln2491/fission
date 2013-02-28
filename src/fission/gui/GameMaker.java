@@ -313,7 +313,7 @@ public class GameMaker extends JFrame {
 		String option;
 		FissionGame game;
 		GameBoard board;
-		
+
 		option = (String) startingPlayerComboBox.getSelectedItem();
 		if (option == "Biały gracz") {
 			isWhitePlayerTurn = true;
@@ -339,11 +339,11 @@ public class GameMaker extends JFrame {
 		} else if (option == "Gracz losowy") {
 			whitePlayer = new RandomPlayer(game);
 		} else if (option == "Gracz zachłanny") {
-			whitePlayer = new GreedyPlayer(game, new FissionEvaluateFunction(),
+			whitePlayer = new GreedyPlayer(game, new FissionEvaluateFunction(game),
 					true);
 		} else if (option == "Gracz alfa-beta") {
 			whitePlayer = new AlfaBetaPlayer(game,
-					new FissionEvaluateFunction(),
+					new FissionEvaluateFunction(game),
 					Integer.parseInt(whitePlayerDeepth.getText()), true);
 		} else if (option == "Gracz alfa-beta z TT") {
 			whitePlayer = new AlfaBetaPlayerWithTTPlayer();
@@ -355,18 +355,19 @@ public class GameMaker extends JFrame {
 		} else if (option == "Gracz losowy") {
 			blackPlayer = new RandomPlayer(game);
 		} else if (option == "Gracz zachłanny") {
-			blackPlayer = new GreedyPlayer(game, new FissionEvaluateFunction(),
+			blackPlayer = new GreedyPlayer(game, new FissionEvaluateFunction(game),
 					true);
 		} else if (option == "Gracz alfa-beta") {
 			blackPlayer = new AlfaBetaPlayer(game,
-					new FissionEvaluateFunction(), Integer.parseInt(blackPlayerDeepth.getText()), false);
-		}else if (option == "Gracz alfa-beta z TT") {
+					new FissionEvaluateFunction(game),
+					Integer.parseInt(blackPlayerDeepth.getText()), false);
+		} else if (option == "Gracz alfa-beta z TT") {
 			blackPlayer = new AlfaBetaPlayerWithTTPlayer();
 		}
 
 		game.setWhitePlayer(whitePlayer);
 		game.setBlackPlayer(blackPlayer);
-		
+
 		board = new GameBoard(game);
 	}
 

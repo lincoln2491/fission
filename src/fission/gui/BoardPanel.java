@@ -26,7 +26,8 @@ public class BoardPanel extends JPanel implements MouseListener {
 	static int PAWN_RADIUS = 25;
 	Point clickedPoint = null;
 	Thread twoComputerPlayersThread;
-BoardPanel thisPanel;
+	BoardPanel thisPanel;
+
 	public BoardPanel(FissionGame aGame) {
 		super();
 		game = aGame;
@@ -41,15 +42,15 @@ BoardPanel thisPanel;
 						Thread.sleep(500);
 					} catch (InterruptedException e) {
 					}
-					while(game.whoIsWinner()==0){
+					while (game.whoIsWinner() == 0) {
 						long start, stop, diff;
 						start = System.currentTimeMillis();
 						game.nextComputerPlayerMove();
 						stop = System.currentTimeMillis();
-						diff = start-stop;
-						if(diff <500){
+						diff = start - stop;
+						if (diff < 500) {
 							try {
-								Thread.sleep(500-diff);
+								Thread.sleep(500 - diff);
 							} catch (InterruptedException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
@@ -65,6 +66,8 @@ BoardPanel thisPanel;
 			this.addMouseListener(this);
 		} else if (game.getBlackPlayer() != null && !game.isWhitePlayerTurn()) {
 			game.nextComputerPlayerMove();
+			this.addMouseListener(this);
+		} else {
 			this.addMouseListener(this);
 		}
 		thisPanel = this;
@@ -319,8 +322,7 @@ BoardPanel thisPanel;
 
 		if (game.isWhitePlayerTurn() && game.getWhitePlayer() != null) {
 			game.nextComputerPlayerMove();
-		}
-		if (!game.isWhitePlayerTurn() && game.getBlackPlayer() != null) {
+		} else if (!game.isWhitePlayerTurn() && game.getBlackPlayer() != null) {
 			game.nextComputerPlayerMove();
 		}
 

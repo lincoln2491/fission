@@ -1,7 +1,9 @@
 package fission.core;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.Random;
 
 import ai.interfaces.ComputerPlayerIf;
 import ai.interfaces.GameIf;
@@ -60,8 +62,9 @@ public class FissionGame implements GameIf {
 					System.out.print("b");
 				}
 			}
-			System.out.println("");
+			System.out.println();
 		}
+
 	}
 
 	public void createNewGame(boolean aIsWhitePlayer) {
@@ -118,8 +121,15 @@ public class FissionGame implements GameIf {
 		int xTarget = x;
 		int yTarget = y;
 		boolean isStopedByWall = true;
-		FieldColor board[][] = ((FissionState) aState).getBoard().clone();
 		FissionState returnState = new FissionState();
+		FieldColor board[][] = new FieldColor[8][8];
+		FieldColor tmpBoard[][] = ((FissionState) aState).getBoard();
+
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				board[i][j] = tmpBoard[i][j];
+			}
+		}
 
 		if (board[x][y] == FieldColor.EMPTY) {
 			returnState.setBoard(board);
@@ -179,6 +189,7 @@ public class FissionGame implements GameIf {
 
 		returnState.setBoard(board);
 		returnState.setWhitePlayerTurn(!actualState.isWhitePlayerTurn());
+		// printState();
 		return returnState;
 	}
 
@@ -188,9 +199,19 @@ public class FissionGame implements GameIf {
 		ArrayList<AbstractMove> moves = new ArrayList<AbstractMove>();
 		FieldColor[][] board = ((FissionState) aState).getBoard();
 		boolean isWhiteTurn = aIsForWhite;
+		int numberOfWhitePlayers = 0;
+		int numberOfBlackPlayers = 0;
 
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
+
+				// sprawdza, czy są pionki
+				if (board[i][j] == FieldColor.WHITE) {
+					numberOfWhitePlayers++;
+				} else if (board[i][j] == FieldColor.BLACK) {
+					numberOfBlackPlayers++;
+				}
+
 				if ((board[i][j] == FieldColor.BLACK && !isWhiteTurn)
 						|| (board[i][j] == FieldColor.WHITE && isWhiteTurn)) {
 					if (i > 0 && board[i - 1][j] == FieldColor.EMPTY) {
@@ -224,6 +245,13 @@ public class FissionGame implements GameIf {
 				}
 			}
 		}
+		if ((numberOfWhitePlayers == 1 && numberOfBlackPlayers == 1)
+				|| numberOfWhitePlayers == 0 || numberOfBlackPlayers == 0) {
+			moves.clear();
+		}
+		
+		long seed = System.nanoTime();
+		Collections.shuffle(moves, new Random(seed));
 		return moves;
 	}
 
@@ -251,10 +279,7 @@ public class FissionGame implements GameIf {
 		int numberOfWhite = 0;
 		int numberOfBlack = 0;
 		FieldColor board[][] = actualState.getBoard();
-
-		if (getAllMoves() == null) {
-			return -1;
-		}
+		int numberOfMoves = getAllMoves().size();
 
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
@@ -278,6 +303,10 @@ public class FissionGame implements GameIf {
 
 		if (numberOfWhite == 0) {
 			return 2;
+		}
+
+		if (numberOfMoves == 0) {
+			return -1;
 		}
 
 		return 0;

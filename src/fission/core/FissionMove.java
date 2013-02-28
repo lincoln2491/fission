@@ -8,6 +8,11 @@ public class FissionMove extends AbstractMove {
 	private int xDirection;
 	private int yDirection;
 
+	public String toString() {
+		return "Move from (" + x + " , " + y + " ) direction ( " + xDirection
+				+ " , " + yDirection + " )";
+	}
+
 	public int getX() {
 		return x;
 	}

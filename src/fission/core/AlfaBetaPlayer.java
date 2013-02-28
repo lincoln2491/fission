@@ -1,5 +1,7 @@
 package fission.core;
 
+import java.util.ArrayList;
+
 import ai.interfaces.AbstractEvaluationFunction;
 import ai.interfaces.AbstractMove;
 import ai.interfaces.AbstractState;
@@ -37,11 +39,11 @@ public class AlfaBetaPlayer implements ComputerPlayerIf {
 			int currentValue = deeperAndDeeper(depthOfSearching - 1, state,
 					Integer.MIN_VALUE, Integer.MAX_VALUE,
 					!game.isWhitePlayerTurn());
-			if (currentValue > valueOfBestMove && isWhitePlayer) {
+			if (currentValue >= valueOfBestMove && isWhitePlayer) {
 				valueOfBestMove = currentValue;
 				bestMove = m;
 			}
-			if (currentValue < valueOfBestMove && !isWhitePlayer) {
+			if (currentValue <= valueOfBestMove && !isWhitePlayer) {
 				valueOfBestMove = currentValue;
 				bestMove = m;
 			}
@@ -52,12 +54,18 @@ public class AlfaBetaPlayer implements ComputerPlayerIf {
 	private int deeperAndDeeper(int aDepth, AbstractState aState, int aAlfa,
 			int aBeta, boolean aIsWhitePlayer) {
 		AbstractMove bestMove;
-
-		if (aDepth == 0) {
+		ArrayList<AbstractMove> allMoves;
+		if (aDepth == 0 ) {
 			return evaluationFunction.evaluateState(aState);
 		}
+
 		if (aIsWhitePlayer) {
-			for (AbstractMove m : game.getAllMovesFromState(aState, true)) {
+			allMoves = game.getAllMovesFromState(aState, true);
+			
+			if (allMoves.size() == 0) {
+				return evaluationFunction.evaluateState(aState);
+			}
+			for (AbstractMove m : allMoves) {
 				int currentValue = deeperAndDeeper(aDepth - 1,
 						game.getStateAfterMove(aState, m), aAlfa, aBeta, false);
 
@@ -69,7 +77,11 @@ public class AlfaBetaPlayer implements ComputerPlayerIf {
 			}
 			return aAlfa;
 		} else {
-			for (AbstractMove m : game.getAllMovesFromState(aState, false)) {
+			allMoves = game.getAllMovesFromState(aState, true);
+			if (allMoves.size() == 0) {
+				return evaluationFunction.evaluateState(aState);
+			}
+			for (AbstractMove m : allMoves) {
 				int currentValue = deeperAndDeeper(aDepth - 1,
 						game.getStateAfterMove(aState, m), aAlfa, aBeta, true);
 
@@ -82,5 +94,4 @@ public class AlfaBetaPlayer implements ComputerPlayerIf {
 			return aBeta;
 		}
 	}
-
 }
