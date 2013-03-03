@@ -22,10 +22,9 @@ public interface GameIf {
 
 	/**
 	 * 
-	 * @return -1 remis
-	 * 0 nikt
-	 * 1 biały gracz
-	 * 2 czarny gracz
+	 * @return -1 remis 0 nikt 1 biały gracz 2 czarny gracz
 	 */
 	public int whoIsWinner();
+
+	public int whoIsWinnerFromState(AbstractState aState, boolean aWhiteTurn);
 }

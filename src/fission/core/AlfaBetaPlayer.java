@@ -41,12 +41,17 @@ public class AlfaBetaPlayer implements ComputerPlayerIf {
 			AbstractState state = game.getStateAfterMove(game.getActualState(),
 					m);
 			int currentValue = deeperAndDeeper(depthOfSearching - 1, state,
-					Integer.MIN_VALUE, Integer.MAX_VALUE, isWhitePlayer);
-			if (currentValue >= valueOfBestMove && isWhitePlayer) {
+					Integer.MIN_VALUE, Integer.MAX_VALUE, !isWhitePlayer);
+
+			if (bestMove == null) {
+				bestMove = m;
+				valueOfBestMove = currentValue;
+			}
+			if (currentValue > valueOfBestMove && isWhitePlayer) {
 				valueOfBestMove = currentValue;
 				bestMove = m;
 			}
-			if (currentValue <= valueOfBestMove && !isWhitePlayer) {
+			if (currentValue < valueOfBestMove && !isWhitePlayer) {
 				valueOfBestMove = currentValue;
 				bestMove = m;
 			}
@@ -60,18 +65,14 @@ public class AlfaBetaPlayer implements ComputerPlayerIf {
 		numberOfVisited++;
 		ArrayList<AbstractMove> allMoves;
 		if (aDepth == 0) {
-			return evaluationFunction.evaluateState(aState);
-		}
-
-		if (withTT) {
-
+			return evaluationFunction.evaluateState(aState, aIsWhitePlayer);
 		}
 
 		if (aIsWhitePlayer) {
 			allMoves = game.getAllMovesFromState(aState, true);
 
 			if (allMoves.size() == 0) {
-				return evaluationFunction.evaluateState(aState);
+				return evaluationFunction.evaluateState(aState, true);
 			}
 			for (AbstractMove m : allMoves) {
 				int currentValue = deeperAndDeeper(aDepth - 1,
@@ -87,13 +88,13 @@ public class AlfaBetaPlayer implements ComputerPlayerIf {
 		} else {
 			allMoves = game.getAllMovesFromState(aState, false);
 			if (allMoves.size() == 0) {
-				return evaluationFunction.evaluateState(aState);
+				return evaluationFunction.evaluateState(aState, false);
 			}
 			for (AbstractMove m : allMoves) {
 				int currentValue = deeperAndDeeper(aDepth - 1,
 						game.getStateAfterMove(aState, m), aAlfa, aBeta, true);
 
-				aBeta = Math.max(currentValue, aBeta);
+				aBeta = Math.min(currentValue, aBeta);
 				if (aAlfa >= aBeta) {
 					return aAlfa;
 				}

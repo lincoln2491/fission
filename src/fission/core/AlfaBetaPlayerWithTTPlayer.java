@@ -42,15 +42,14 @@ public class AlfaBetaPlayerWithTTPlayer implements ComputerPlayerIf {
 		for (AbstractMove m : game.getAllMoves()) {
 			AbstractState state = game.getStateAfterMove(game.getActualState(),
 					m);
-			int currentValue = -deeperAndDeeper(depthOfSearching - 1, state,
-					-Integer.MAX_VALUE, -Integer.MIN_VALUE, isWhitePlayer);
+			int currentValue = deeperAndDeeper(depthOfSearching - 1, state,
+					-Integer.MAX_VALUE, -Integer.MIN_VALUE, !isWhitePlayer);
 
-			if (currentValue >= valueOfBestMove && isWhitePlayer) {
-				valueOfBestMove = currentValue;
+			if (bestMove == null) {
 				bestMove = m;
-			}
-			if (currentValue <= valueOfBestMove && !isWhitePlayer) {
 				valueOfBestMove = currentValue;
+			}
+			if (currentValue > valueOfBestMove) {
 				bestMove = m;
 			}
 		}
@@ -60,17 +59,17 @@ public class AlfaBetaPlayerWithTTPlayer implements ComputerPlayerIf {
 
 	}
 
-	private int deeperAndDeeper(int aDepth, AbstractState aState, int aAlfa,
+	private int deeperAndDeeper(int aDepth, AbstractState aState, int aAlpha,
 			int aBeta, boolean aIsWhitePlayer) {
 		numberOfVisited++;
 		ArrayList<AbstractMove> allMoves;
 		int best;
-		int prevAlpha = aAlfa;
+		int prevAlpha = aAlpha;
 		AbstractMove bestMove = null;
 		AbstractMove moveFromTT = null;
 		int valueOfBestMove = Integer.MIN_VALUE;
 		if (aDepth == 0) {
-			return evaluationFunction.evaluateState(aState);
+			return evaluationFunction.evaluateState(aState, aIsWhitePlayer);
 		}
 
 		TTMove move;
@@ -82,19 +81,23 @@ public class AlfaBetaPlayerWithTTPlayer implements ComputerPlayerIf {
 
 		if (move != null && move.depth >= aDepth) {
 			if (move.bound == 'l') {
-				aAlfa = Math.max(aAlfa, move.value);
+				aAlpha = Math.max(aAlpha, move.value);
 			} else if (move.bound == 'u') {
 				aBeta = Math.min(aBeta, move.value);
 			} else if (move.bound == 'a') {
-				aAlfa = move.value;
+				aAlpha = move.value;
 				aBeta = move.value;
 			}
-			if (aAlfa >= aBeta) {
+			if (aAlpha >= aBeta) {
 				return move.value;
 			}
 		}
 
 		allMoves = game.getAllMovesFromState(aState, aIsWhitePlayer);
+		if (allMoves.size() == 0) {
+			return evaluationFunction.evaluateState(aState, aIsWhitePlayer);
+		}
+
 		if (move != null) {
 			moveFromTT = new FissionMove(move.x, move.y, move.xDirection,
 					move.yDirection);
@@ -105,7 +108,7 @@ public class AlfaBetaPlayerWithTTPlayer implements ComputerPlayerIf {
 				continue;
 			}
 			int currentValue = -deeperAndDeeper(aDepth - 1,
-					game.getStateAfterMove(aState, m), -aBeta, -aAlfa,
+					game.getStateAfterMove(aState, m), -aBeta, -aAlpha,
 					!aIsWhitePlayer);
 
 			if (currentValue > valueOfBestMove) {
@@ -115,16 +118,17 @@ public class AlfaBetaPlayerWithTTPlayer implements ComputerPlayerIf {
 			if (valueOfBestMove >= aBeta) {
 				break;
 			}
-			if (valueOfBestMove > aAlfa) {
-				aAlfa = valueOfBestMove;
+			if (valueOfBestMove > aAlpha) {
+				aAlpha = valueOfBestMove;
 			}
 		}
-		saveToTT(aState, valueOfBestMove, aDepth, aAlfa, aBeta, bestMove);
+		saveToTT(aState, valueOfBestMove, aDepth, aAlpha, aBeta, bestMove);
 		return valueOfBestMove;
 	}
 
 	private void saveToTT(AbstractState aState, int aValue, int aDepth,
-			int aAlpha, int aBeta, AbstractMove aMove) {
+
+	int aAlpha, int aBeta, AbstractMove aMove) {
 		if (aMove == null) {
 			return;
 		}

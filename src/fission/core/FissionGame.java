@@ -49,8 +49,8 @@ public class FissionGame implements GameIf {
 	}
 
 	public void printState() {
-		for (int i = 0; i < 8; i++) {
-			for (int j = 0; j < 8; j++) {
+		for (int j = 0; j < 8; j++) {
+			for (int i = 0; i < 8; i++) {
 				FieldColor tmp = actualState.getBoard()[i][j];
 				if (tmp == FieldColor.EMPTY) {
 					System.out.print("-");
@@ -158,8 +158,8 @@ public class FissionGame implements GameIf {
 		board[xTarget][yTarget] = board[x][y];
 		board[x][y] = FieldColor.EMPTY;
 		if (!isStopedByWall) {// TODO wykroczenia poza tablice
-			xTarget += xDirection;
-			yTarget += yDirection;
+			// xTarget += xDirection;
+			// yTarget += yDirection;
 			if (xTarget > 0 && yTarget > 0) {
 				board[xTarget - 1][yTarget - 1] = FieldColor.EMPTY;
 			}
@@ -249,9 +249,9 @@ public class FissionGame implements GameIf {
 				|| numberOfWhitePlayers == 0 || numberOfBlackPlayers == 0) {
 			moves.clear();
 		}
-		
+
 		long seed = System.nanoTime();
-		//Collections.shuffle(moves, new Random(seed));
+		// Collections.shuffle(moves, new Random(seed));
 		return moves;
 	}
 
@@ -280,6 +280,44 @@ public class FissionGame implements GameIf {
 		int numberOfBlack = 0;
 		FieldColor board[][] = actualState.getBoard();
 		int numberOfMoves = getAllMoves().size();
+
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				if (board[i][j] == FieldColor.WHITE) {
+					numberOfWhite++;
+				}
+				if (board[i][j] == FieldColor.BLACK) {
+					numberOfBlack++;
+				}
+			}
+		}
+
+		if ((numberOfBlack == 0 && numberOfWhite == 0)
+				|| (numberOfBlack == 1 && numberOfWhite == 1)) {
+			return -1;
+		}
+
+		if (numberOfBlack == 0) {
+			return 1;
+		}
+
+		if (numberOfWhite == 0) {
+			return 2;
+		}
+
+		if (numberOfMoves == 0) {
+			return -1;
+		}
+
+		return 0;
+	}
+
+	@Override
+	public int whoIsWinnerFromState(AbstractState aState, boolean aWhiteTurn) {
+		int numberOfWhite = 0;
+		int numberOfBlack = 0;
+		FieldColor board[][] = ((FissionState) aState).getBoard();
+		int numberOfMoves = getAllMovesFromState( aState, aWhiteTurn).size();
 
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {

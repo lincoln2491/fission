@@ -32,16 +32,24 @@ public class GreedyPlayer implements ComputerPlayerIf {
 			int evaluation;
 			if (bestMove == null) {
 				bestMove = m;
-				bestEvaluation = evaluationFunction.evaluateState(game
-						.getActualState());
+				bestEvaluation = evaluationFunction.evaluateState(
+						game.getActualState(), isWhitePlayer);
 				continue;
 			}
-			evaluation = evaluationFunction
-					.evaluateState(game.getActualState());
-			if (evaluation > bestEvaluation) {
-				bestEvaluation = evaluation;
-				bestMove = m;
+			evaluation = evaluationFunction.evaluateState(
+					game.getActualState(), isWhitePlayer);
+			if (isWhitePlayer) {
+				if (evaluation > bestEvaluation) {
+					bestEvaluation = evaluation;
+					bestMove = m;
+				}
+			} else {
+				if (evaluation < bestEvaluation) {
+					bestEvaluation = evaluation;
+					bestMove = m;
+				}
 			}
+
 		}
 		return bestMove;
 	}
