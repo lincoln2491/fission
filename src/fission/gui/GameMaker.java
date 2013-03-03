@@ -343,10 +343,11 @@ public class GameMaker extends JFrame {
 					game), true);
 		} else if (option == "Gracz alfa-beta") {
 			whitePlayer = new AlfaBetaPlayer(game, new FissionEvaluateFunction(
-					game), Integer.parseInt(whitePlayerDeepth.getText()), true, false);
+					game), Integer.parseInt(whitePlayerDeepth.getText()), true);
 		} else if (option == "Gracz alfa-beta z TT") {
-			whitePlayer = new AlfaBetaPlayer(game, new FissionEvaluateFunction(
-					game), Integer.parseInt(whitePlayerDeepth.getText()), true, true);
+			whitePlayer = new AlfaBetaPlayerWithTTPlayer(game,
+					new FissionEvaluateFunction(game),
+					Integer.parseInt(whitePlayerDeepth.getText()), true);
 		}
 
 		option = (String) blackPlayerComboBox.getSelectedItem();
@@ -359,10 +360,12 @@ public class GameMaker extends JFrame {
 					game), false);
 		} else if (option == "Gracz alfa-beta") {
 			blackPlayer = new AlfaBetaPlayer(game, new FissionEvaluateFunction(
-					game), Integer.parseInt(blackPlayerDeepth.getText()), false, false);
+					game), Integer.parseInt(blackPlayerDeepth.getText()), false);
 		} else if (option == "Gracz alfa-beta z TT") {
-			blackPlayer = new AlfaBetaPlayer(game, new FissionEvaluateFunction(
-					game), Integer.parseInt(blackPlayerDeepth.getText()), false, true);
+			blackPlayer = new AlfaBetaPlayerWithTTPlayer(game,
+					new FissionEvaluateFunction(game),
+					Integer.parseInt(blackPlayerDeepth.getText()), false);
+
 		}
 
 		game.setWhitePlayer(whitePlayer);

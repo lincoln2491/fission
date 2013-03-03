@@ -15,23 +15,20 @@ public class AlfaBetaPlayer implements ComputerPlayerIf {
 	int depthOfSearching;
 	boolean isWhitePlayer;
 	boolean withTT;
-	private HashMap<String, Integer> TT;
+	private int numberOfVisited;
 
 	public AlfaBetaPlayer(GameIf aGame,
 			AbstractEvaluationFunction aEvaluationFunction,
-			int aDepthOfSearching, boolean aIsWhitePlayer, boolean aWithTT) {
+			int aDepthOfSearching, boolean aIsWhitePlayer) {
 		game = aGame;
 		evaluationFunction = aEvaluationFunction;
 		depthOfSearching = aDepthOfSearching;
 		isWhitePlayer = aIsWhitePlayer;
-		withTT = aWithTT;
-		if (withTT) {
-			TT = new HashMap<String, Integer>();
-		}
 	}
 
 	@Override
 	public AbstractMove getNextMove() {
+		numberOfVisited = 0;
 		AbstractMove bestMove = null;
 		int valueOfBestMove;
 		if (isWhitePlayer) {
@@ -54,42 +51,25 @@ public class AlfaBetaPlayer implements ComputerPlayerIf {
 				bestMove = m;
 			}
 		}
+		System.out.println("Alfabeta " + numberOfVisited);
 		return bestMove;
 	}
 
-	private void saveToTT(AbstractState aState, int aValue, int aDepth,
-			int aAlpha, int aBeta) {
-		String key;
-		Integer value;
-		value = aValue;
-		key = aState.toString() + "-" + Integer.toString(aDepth) + "-";
-		if (value <= aAlpha) {
-			key += "u";
-		} else if (value >= aBeta) {
-			key += "l";
-		} else {
-			key += "a";
-		}
-
-		TT.put(key, value);
-	}
-	
-
 	private int deeperAndDeeper(int aDepth, AbstractState aState, int aAlfa,
 			int aBeta, boolean aIsWhitePlayer) {
+		numberOfVisited++;
 		ArrayList<AbstractMove> allMoves;
 		if (aDepth == 0) {
 			return evaluationFunction.evaluateState(aState);
 		}
-		
-		if(withTT){
-			
+
+		if (withTT) {
+
 		}
-		
+
 		if (aIsWhitePlayer) {
 			allMoves = game.getAllMovesFromState(aState, true);
-			
-			
+
 			if (allMoves.size() == 0) {
 				return evaluationFunction.evaluateState(aState);
 			}
@@ -121,13 +101,5 @@ public class AlfaBetaPlayer implements ComputerPlayerIf {
 			}
 			return aBeta;
 		}
-	}
-	
-	private class TTMove{
-		int x, y, xDirection, yDirection;
-		int value;
-		char bound;
-		int depth;
-		
 	}
 }

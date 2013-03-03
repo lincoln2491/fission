@@ -13,6 +13,24 @@ public class FissionMove extends AbstractMove {
 				+ " , " + yDirection + " )";
 	}
 
+	public boolean equals(Object o) {
+		if (o == null) {
+			return false;
+		}
+		if (o == this) {
+			return true;
+		}
+		if (o instanceof FissionMove) {
+			FissionMove tmp = (FissionMove) o;
+			if (tmp.getX() == this.getX() && tmp.getY() == this.getY()
+					&& tmp.getxDirection() == this.getxDirection()
+					&& tmp.getyDirection() == this.getyDirection()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public int getX() {
 		return x;
 	}
